@@ -1,21 +1,31 @@
 import { useState } from "react";
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from "@react-google-maps/api";
+import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 import { getNearbyMedicines } from "../utils/api";
 import toast from "react-hot-toast";
 import "./NearbyPage.css";
 
-const MAP_STYLE = { width: "100%", height: "420px", borderRadius: 10 };
+// Fix leaflet default marker icon bug in React
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
+
+const userIcon = new L.Icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
 
 export default function NearbyPage() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [userPos, setUserPos] = useState(null);
-  const [selected, setSelected] = useState(null);
-
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "",
-  });
 
   const handleSearch = async () => {
     navigator.geolocation.getCurrentPosition(async (pos) => {
@@ -43,6 +53,8 @@ export default function NearbyPage() {
     return acc;
   }, {});
 
+  const defaultCenter = [17.385, 78.4867];
+
   return (
     <div className="page">
       <div className="container">
@@ -62,37 +74,49 @@ export default function NearbyPage() {
           </div>
         </div>
 
-        {isLoaded && (
-          <div className="map-wrapper">
-            <GoogleMap
-              mapContainerStyle={MAP_STYLE}
-              center={userPos || { lat: 17.385, lng: 78.4867 }}
-              zoom={userPos ? 13 : 11}
-            >
-              {userPos && (
-                <Marker position={userPos} label="You" icon={{ url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" }} />
-              )}
-              {Object.values(pharmacyMarkers).map((p) => {
-                const [lng, lat] = p.location?.coordinates || [0, 0];
-                if (!lat || !lng) return null;
-                return (
-                  <Marker key={p._id} position={{ lat, lng }} onClick={() => setSelected(p)}>
-                    {selected?._id === p._id && (
-                      <InfoWindow onCloseClick={() => setSelected(null)}>
-                        <div className="info-window">
-                          <strong>{p.pharmacyName}</strong>
-                          <p>{p.address}</p>
-                          <p>{p.phone}</p>
-                          <p className="info-count">{p.medicines.length} medicine(s) available</p>
-                        </div>
-                      </InfoWindow>
-                    )}
-                  </Marker>
-                );
-              })}
-            </GoogleMap>
-          </div>
-        )}
+        <div className="map-wrapper">
+          <MapContainer
+            center={userPos ? [userPos.lat, userPos.lng] : defaultCenter}
+            zoom={userPos ? 13 : 11}
+            style={{ width: "100%", height: "420px" }}
+            key={userPos ? `${userPos.lat}-${userPos.lng}` : "default"}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+
+            {userPos && (
+              <>
+                <Marker position={[userPos.lat, userPos.lng]} icon={userIcon}>
+                  <Popup>You are here</Popup>
+                </Marker>
+                <Circle
+                  center={[userPos.lat, userPos.lng]}
+                  radius={10000}
+                  pathOptions={{ color: "#1a73e8", fillColor: "#1a73e8", fillOpacity: 0.05 }}
+                />
+              </>
+            )}
+
+            {Object.values(pharmacyMarkers).map((p) => {
+              const [lng, lat] = p.location?.coordinates || [0, 0];
+              if (!lat || !lng) return null;
+              return (
+                <Marker key={p._id} position={[lat, lng]}>
+                  <Popup>
+                    <div className="info-window">
+                      <strong>{p.pharmacyName}</strong>
+                      <p>{p.address}</p>
+                      <p>{p.phone}</p>
+                      <p className="info-count">{p.medicines.length} medicine(s) available</p>
+                    </div>
+                  </Popup>
+                </Marker>
+              );
+            })}
+          </MapContainer>
+        </div>
 
         {results.length > 0 && (
           <div className="mt-3">
