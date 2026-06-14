@@ -1,0 +1,27 @@
+.nearby-search { display: flex; gap: 12px; align-items: center; }
+.map-wrapper { border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+
+.info-window { font-family: inherit; }
+.info-window strong { display: block; margin-bottom: 4px; }
+.info-window p { font-size: 13px; color: #555; margin: 2px 0; }
+.info-count { color: var(--primary); font-weight: 600; margin-top: 6px !important; }
+
+.pharmacy-result h3 { font-size: 16px; margin-bottom: 4px; }
+
+.medicine-list {
+  list-style: none;
+  margin-top: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.medicine-list li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.med-stock { color: var(--muted); }

@@ -1,0 +1,79 @@
+.medicine-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: box-shadow 0.2s;
+}
+
+.medicine-card:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+
+.mc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.mc-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.mc-generic {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.mc-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mc-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background: var(--bg);
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.mc-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mc-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mc-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.text-warning { color: var(--warning); }
+
+.mc-pharmacy {
+  font-size: 13px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+.mc-actions {
+  display: flex;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
